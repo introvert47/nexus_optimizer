@@ -1,34 +1,43 @@
 import time
-from managers.memory_manager import MemoryManager
-from managers.scheduler_manager import SchedulerManager
-from managers.power_manager import PowerManager
+import psutil
 
 class OptimizationEngine:
-    def __init__(self, bloatware_names: set):
-        self.memory_mgr = MemoryManager()
-        self.scheduler_mgr = SchedulerManager(blacklist=bloatware_names)
-        self.power_mgr = PowerManager()
-        self.running = False
+    def __init__(self, bloatware_names=None):
+        # Default games list (Minecraft, Forza 4, GTA 5, and Java for Minecraft Java Edition)
+        self.game_names = {"Minecraft.Windows.exe", "ForzaHorizon4.exe", "GTA5.exe", "javaw.exe"} 
+        self.bloatware_names = bloatware_names if bloatware_names else {"chrome.exe", "msedge.exe", "discord.exe", "spotify.exe"}
+        self.is_running = False
 
-    def start(self, interval: float = 2.0):
-        print("[+] Optimization Engine Started Successfully.")
-        self.running = True
-        
-        try:
-            while self.running:
-                self.scheduler_mgr.optimize_priorities()
-                
-                fg_pid = self.scheduler_mgr.get_foreground_pid()
-                fg_name = self.scheduler_mgr.get_process_name(fg_pid)
-                
-                if fg_name:
-                    self.power_mgr.evaluate_and_switch({fg_name})
-                
-                time.sleep(interval)
-                
-        except KeyboardInterrupt:
-            self.stop()
+    def start(self):
+        self.is_running = True
+        game_was_running = False
+
+        while self.is_running:
+            game_found = False
+            
+            # Scan active system processes
+            for proc in psutil.process_iter(['pid', 'name']):
+                try:
+                    if proc.info['name'] in self.game_names:
+                        game_found = True
+                        
+                        # Set to HIGH priority if it wasn't boosted already
+                        if not game_was_running:
+                            proc.set_priority(psutil.HIGH_PRIORITY_CLASS)
+                            game_was_running = True
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+
+            # If the game was running but closed down, turn off the engine safely
+            if game_was_running and not game_found:
+                try:
+                    self.stop() 
+                except Exception:
+                    pass
+                self.is_running = False 
+                break
+
+            time.sleep(2) 
 
     def stop(self):
-        print("[-] Stopping Optimization Engine...")
-        self.running = False
+        self.is_running = False
