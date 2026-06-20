@@ -4,20 +4,20 @@ Write-Host "        NEXUS OPTIMIZER DEPLOYMENT       " -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 Write-Host "[*] Fetching latest framework scripts..." -ForegroundColor Cyan
 
-$tempDir = "$env:TEMP\nexus_flat"
-if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force | Out-Null }
-New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+# 1. Clear out any old cached files completely
+Remove-Item "$env:TEMP\main.py", "$env:TEMP\engine.py", "$env:TEMP\managers" -Recurse -Force -ErrorAction SilentlyContinue
 
-# Download everything into the flat folder
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/main.py" -OutFile "$tempDir\main.py"
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/engine.py" -OutFile "$tempDir\engine.py"
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/managers/maintenance_manager.py" -OutFile "$tempDir\maintenance_manager.py"
+# 2. Create the clean managers subdirectory
+New-Item -ItemType Directory -Force -Path "$env:TEMP\managers" | Out-Null
 
-# Clean up the file lines so they don't look for a managers folder structure
-(Get-Content "$tempDir\main.py") -replace "from managers.maintenance_manager import MaintenanceManager", "from maintenance_manager import MaintenanceManager" | Set-Content "$tempDir\main.py"
+# 3. Download the clean files directly into the Windows Temp environment
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/main.py" -OutFile "$env:TEMP\main.py"
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/engine.py" -OutFile "$env:TEMP\engine.py"
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/managers/maintenance_manager.py" -OutFile "$env:TEMP\managers\maintenance_manager.py"
 
 Write-Host "[+] Scripts cached successfully. Launching console..." -ForegroundColor Green
 Start-Sleep -Seconds 1
 
-cd $tempDir
+# 4. Jump into the folder and execute
+cd $env:TEMP
 python main.py
