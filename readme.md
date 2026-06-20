@@ -26,4 +26,4 @@ You can launch Nexus Optimizer instantly without downloading any installer files
 Copy the single-line command below, paste it into your PowerShell window, and press **Enter**:
 
 ```powershell
-[Net.ServicePointManager]::RepositoryAssembly = $null; & ([scriptblock]::Create((irm "[https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/run.ps1?v=(Get-Random)](https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/run.ps1?v=(Get-Random))")))
+[Net.ServicePointManager]::RepositoryAssembly = $null; & ([scriptblock]::Create((irm "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/run.ps1?v=(Get-Random)")))
