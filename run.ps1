@@ -9,7 +9,7 @@ $exePath = "$env:TEMP\main.exe"
 Remove-Item $exePath -Force -ErrorAction SilentlyContinue
 
 # 2. Download the compiled executable directly from GitHub
-$$url = "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/main.exe"
+$url = "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/main.exe"
 Invoke-WebRequest -Uri $url -OutFile $exePath
 
 Write-Host "[+] Executable cached successfully. Launching..." -ForegroundColor Green
