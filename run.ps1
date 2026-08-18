@@ -8,12 +8,12 @@ Write-Host "[*] Downloading latest executable..." -ForegroundColor Cyan
 $exePath = "$env:TEMP\main.exe"
 Remove-Item $exePath -Force -ErrorAction SilentlyContinue
 
-# 2. Download the compiled executable directly from GitHub
+# 2. Download compiled executable directly from GitHub root
 $url = "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/main.exe"
 Invoke-WebRequest -Uri $url -OutFile $exePath
 
 Write-Host "[+] Executable cached successfully. Launching..." -ForegroundColor Green
 Start-Sleep -Seconds 1
 
-# 3. Launch the executable with Administrator privileges
+# 3. Launch with Administrator privileges
 Start-Process -FilePath $exePath -Verb RunAs
