@@ -1,23 +1,19 @@
 Clear-Host
-Write-Host "=========================================" -ForegroundColor Green
-Write-Host "        NEXUS OPTIMIZER DEPLOYMENT       " -ForegroundColor Green
-Write-Host "=========================================" -ForegroundColor Green
-Write-Host "[*] Fetching latest framework scripts..." -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Green
+Write-Host "     NEXUS OPTIMIZER DEPLOYMENT       " -ForegroundColor Green
+Write-Host "======================================" -ForegroundColor Green
+Write-Host "[*] Downloading latest executable..." -ForegroundColor Cyan
 
-# 1. Clear out any old cached files completely
-Remove-Item "$env:TEMP\main.py", "$env:TEMP\engine.py", "$env:TEMP\managers" -Recurse -Force -ErrorAction SilentlyContinue
+# 1. Clear out any old cached executable
+$exePath = "$env:TEMP\main.exe"
+Remove-Item $exePath -Force -ErrorAction SilentlyContinue
 
-# 2. Create the clean managers subdirectory
-New-Item -ItemType Directory -Force -Path "$env:TEMP\managers" | Out-Null
+# 2. Download the compiled executable directly from GitHub
+$url = "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/dist/main.exe"
+Invoke-WebRequest -Uri $url -OutFile $exePath
 
-# 3. Download the clean files directly into the Windows Temp environment
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/main.py" -OutFile "$env:TEMP\main.py"
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/engine.py" -OutFile "$env:TEMP\engine.py"
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/introvert47/nexus_optimizer/main/nexus_optimizer/managers/maintenance_manager.py" -OutFile "$env:TEMP\managers\maintenance_manager.py"
-
-Write-Host "[+] Scripts cached successfully. Launching console..." -ForegroundColor Green
+Write-Host "[+] Executable cached successfully. Launching..." -ForegroundColor Green
 Start-Sleep -Seconds 1
 
-# 4. Jump into the folder and execute
-cd $env:TEMP
-python main.py
+# 3. Launch the executable with Administrator privileges
+Start-Process -FilePath $exePath -Verb RunAs
